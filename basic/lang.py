@@ -54,7 +54,20 @@ class Restore(Statement):
         return "RESTORE #{0.expression}".format(self)
 
 
-class Reference():
+class Let(Statement):
+
+    def __init__(self, reference, expression):
+        self.reference = reference
+        self.expression = expression
+
+    def __repr__(self):
+        return "Let({0.reference!r}, {0.expression!r})".format(self)
+
+    def __str__(self):
+        return "LET {0.reference} = {0.expression}".format(self)
+
+
+class Reference(object):
 
     def __init__(self, variable, indices):
         self.variable = variable
@@ -69,3 +82,79 @@ class Reference():
             return "{0}({1})".format(self.variable, indices_str)
         else:
             return self.variable
+
+
+class Negation(object):
+
+    def __init__(self, expression):
+        self.expression = expression
+
+    def __repr__(self):
+        return "Negation({0.expression!r})".format(self)
+
+    def __str__(self):
+        return "-{0.expression}".format(self)
+
+
+class Parens(object):
+
+    def __init__(self, expression):
+        self.expression = expression
+
+    def __repr__(self):
+        return "Parens({0.expression!r})".format(self)
+
+    def __str__(self):
+        return "({0.expression})".format(self)
+
+
+class Mul(object):
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        return "Mul({0.a!r}, {0.b!r})".format(self)
+
+    def __str__(self):
+        return "{0.a}*{0.b}".format(self)
+
+
+class Div(object):
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        return "Div({0.a!r}, {0.b!r})".format(self)
+
+    def __str__(self):
+        return "{0.a}/{0.b}".format(self)
+
+
+class Add(object):
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        return "Add({0.a!r}, {0.b!r})".format(self)
+
+    def __str__(self):
+        return "{0.a}+{0.b}".format(self)
+
+
+class Sub(object):
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        return "Sub({0.a!r}, {0.b!r})".format(self)
+
+    def __str__(self):
+        return "{0.a}-{0.b}".format(self)
