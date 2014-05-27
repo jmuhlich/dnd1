@@ -74,7 +74,7 @@ class Reference(object):
         self.indices = indices
 
     def __repr__(self):
-        return "Reference({0.variable}, {0.indices!r})".format(self)
+        return "Reference('{0.variable}', {0.indices!r})".format(self)
 
     def __str__(self):
         if len(self.indices):
