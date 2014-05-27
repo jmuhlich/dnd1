@@ -28,7 +28,7 @@ num_ref = numvar:var -> basic.Reference(var, [])
 
 comment = 'REM' (' ' sp <char*> | -> ''):content -> basic.Comment(content)
 base = 'BASE ' sp number:num -> basic.Base(num)
-restore = 'RESTORE ' sp '#' num_expr:expr -> basic.Restore(expr)
+restore = 'RESTORE ' sp '#' (num_ref|number):num -> basic.Restore(num)
 let = ('LET ' sp)? num_ref:ref sp '=' sp expr:expr -> basic.Let(ref, expr)
 
 # FIXME this is a fall-through for testing - delete it when finished

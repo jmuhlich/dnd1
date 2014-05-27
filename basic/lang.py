@@ -44,14 +44,14 @@ class Base(Statement):
 
 class Restore(Statement):
 
-    def __init__(self, expression):
-        self.expression = expression
+    def __init__(self, num):
+        self.num = num
 
     def __repr__(self):
-        return "Restore({0.expression!r})".format(self)
+        return "Restore({0.num!r})".format(self)
 
     def __str__(self):
-        return "RESTORE #{0.expression}".format(self)
+        return "RESTORE #{0.num}".format(self)
 
 
 class Let(Statement):
