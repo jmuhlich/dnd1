@@ -36,7 +36,9 @@ other = <char+>
 
 statement = comment | base | restore | let | other
 
-line = sp number:num spr statement:stmt sp nl -> basic.Line(num, stmt)
+line = sp number:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
+
+program = line*:lines -> basic.Program(lines)
 
 """
 

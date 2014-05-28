@@ -1,3 +1,12 @@
+class Program(object):
+
+    def __init__(self, lines):
+        self.lines = lines
+
+    def __repr__(self):
+        return "Program(<{0} lines>)".format(len(self.lines))
+
+
 class Line(object):
 
     def __init__(self, number, statement):
