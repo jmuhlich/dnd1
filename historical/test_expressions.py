@@ -1,3 +1,8 @@
+# This script was written to work out how to make operator precedence and
+# left-associativity work properly in a Parsley grammar. It builds random
+# mathematical expressions, evaluates them using both Python's eval() and our
+# own parser, and verifies that the results are equal.
+
 import operator
 import random
 import unittest
