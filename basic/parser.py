@@ -41,7 +41,7 @@ restore = 'RESTORE ' sp '#' (num_ref|number):num -> basic.Restore(num)
 let = ('LET ' sp)? num_ref:ref sp '=' sp expr:expr -> basic.Let(ref, expr)
 
 # FIXME this is a fall-through for testing - delete it when finished
-other = <char+>
+other = char+:keyword -> '<' + ''.join(keyword) + '>'
 
 statement = comment | base | restore | let | other
 
