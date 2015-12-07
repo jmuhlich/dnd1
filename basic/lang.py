@@ -167,3 +167,34 @@ class Sub(object):
 
     def __str__(self):
         return "{0.a}-{0.b}".format(self)
+
+
+# Consider this class abstract; only instantiate its subclasses.
+class Builtin(object):
+
+    lang_name = '<undefined>'
+
+    def __init__(self, expression):
+        self.expression = expression
+
+    def __repr__(self):
+        return "{1}({0.expression!r})".format(self, type(self).__name__)
+
+    def __str__(self):
+        return "{1}({0.expression})".format(self, self.lang_name)
+
+
+class Int(Builtin):
+    lang_name = 'INT'
+
+
+class Abs(Builtin):
+    lang_name = 'ABS'
+
+
+class Rnd(Builtin):
+    lang_name = 'RND'
+
+
+class Clk(Builtin):
+    lang_name = 'CLK'
