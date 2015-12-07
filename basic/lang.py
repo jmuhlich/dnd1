@@ -86,11 +86,11 @@ class Reference(object):
         return "Reference('{0.variable}', {0.indices!r})".format(self)
 
     def __str__(self):
-        if len(self.indices):
+        if self.indices is None:
+            return self.variable
+        else:
             indices_str = ",".join(map(str, self.indices))
             return "{0}({1})".format(self.variable, indices_str)
-        else:
-            return self.variable
 
 
 class Negation(object):

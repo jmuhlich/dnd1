@@ -23,9 +23,11 @@ expr2 = (expr2:left ws '*' ws value:right -> basic.Mul(left, right)) \
       | (expr2:left ws '/' ws value:right -> basic.Div(left, right)) \
       | value
 
-num_ref = numvar:var -> basic.Reference(var, [])
-# FIXME implement array references
-# ... (expr (',' expr)*)?:indices -> basic.Reference(var, indices)
+# Should really get N-d indexing working, but 2-d is enough for now.
+index_2 = '(' expr:expr1 ',' expr:expr2 ')' -> (expr1, expr2)
+index_1 = '(' expr:expr ')' -> (expr,)
+indices = index_2 | index_1
+num_ref = numvar:var indices?:indices -> basic.Reference(var, indices)
 
 builtin_arg = '(' expr:expr ')' -> expr
 int = 'INT' builtin_arg:expr -> basic.Int(expr)
