@@ -76,6 +76,18 @@ class Let(Statement):
         return "LET {0.reference} = {0.expression}".format(self)
 
 
+class Todo(Statement):
+
+    def __init__(self, string):
+        self.string = string
+
+    def __repr__(self):
+        return "Todo({0.string!r})".format(self)
+
+    def __str__(self):
+        return "<<TODO>> {0.string}".format(self)
+
+
 class Reference(object):
 
     def __init__(self, variable, indices):

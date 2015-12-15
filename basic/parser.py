@@ -5,6 +5,7 @@ grammar_source = """
 sp = ' '*
 char = :x ?(x != '\\n') -> x
 nl = '\n'
+integer = <digit+>:ds -> int(ds)
 number = ( <digit+ ('.' digit*)?> | <digit* '.' digit+> ):ds -> float(ds)
 varname = <letter letterOrDigit*>
 numvar = varname
@@ -36,16 +37,17 @@ rnd = 'RND' builtin_arg:expr -> basic.Rnd(expr)
 clk = 'CLK' builtin_arg:expr -> basic.Clk(expr)
 
 comment = 'REM' (' ' sp <char*> | -> ''):content -> basic.Comment(content)
-base = 'BASE ' sp number:num -> basic.Base(num)
-restore = 'RESTORE ' sp '#' (num_ref|number):num -> basic.Restore(num)
+base = 'BASE ' sp integer:num -> basic.Base(num)
+restore = 'RESTORE ' sp '#' (num_ref|integer):num -> basic.Restore(num)
 let = ('LET ' sp)? num_ref:ref sp '=' sp expr:expr -> basic.Let(ref, expr)
+#print = 'PRINT ' sp 
 
 # FIXME this is a fall-through for testing - delete it when finished
-other = char+:keyword -> '<' + ''.join(keyword) + '>'
+todo = <char+>:todo_stmt -> basic.Todo(todo_stmt)
 
-statement = comment | base | restore | let | other
+statement = comment | base | restore | let | todo
 
-line = sp number:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
+line = sp integer:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
 
 program = line*:lines -> basic.Program(lines)
 
