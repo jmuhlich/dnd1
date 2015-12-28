@@ -6,7 +6,7 @@ sp = ' '*
 char = :x ?(x != '\\n') -> x
 nl = '\n'
 integer = <digit+>:ds -> int(ds)
-number = ( <digit+ ('.' digit*)?> | <digit* '.' digit+> ):ds -> float(ds)
+number = (( <digit+ '.' digit*> | <digit* '.' digit+> ):ds -> float(ds)) | integer
 varname = <letter letterOrDigit*>
 numvar = varname
 strvar = <varname '$'>
