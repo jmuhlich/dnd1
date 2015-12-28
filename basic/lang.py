@@ -78,17 +78,20 @@ class Let(Statement):
 
 class Print(Statement):
 
-    def __init__(self, arg1=None, argn=None, lsep=None):
+    def __init__(self, args=None):
         self.args = []
-        if arg1 is not None:
-            self.args.append(arg1)
-        if argn is not None:
-            self.args += sum(argn, [])
-        if lsep is not None:
-            self.args.append(lsep)
+        if args is not None:
+            for a in args:
+                if isinstance(a, list):
+                    self.args.extend(a)
+                elif a is not None:
+                    self.args.append(a)
 
     def __repr__(self):
-        return "Print({0.args!r})".format(self)
+        if self.args:
+            return "Print({0.args!r})".format(self)
+        else:
+            return "Print()"
 
     def __str__(self):
         if self.args:
@@ -112,12 +115,15 @@ class Todo(Statement):
 
 class Reference(object):
 
-    def __init__(self, variable, indices):
+    def __init__(self, variable, indices=None):
         self.variable = variable
         self.indices = indices
 
     def __repr__(self):
-        return "Reference('{0.variable}', {0.indices!r})".format(self)
+        if self.indices is None:
+            return "Reference('{0.variable}')".format(self)
+        else:
+            return "Reference('{0.variable}', {0.indices!r})".format(self)
 
     def __str__(self):
         if self.indices is None:

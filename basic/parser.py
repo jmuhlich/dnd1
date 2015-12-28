@@ -46,7 +46,7 @@ base = 'BASE ' sp integer:num -> basic.Base(num)
 restore = 'RESTORE ' sp '#' (num_ref|integer):num -> basic.Restore(num)
 let = ('LET ' sp)? num_ref:ref sp '=' sp expr:expr -> basic.Let(ref, expr)
 print = ('PRINT ' sp print_arg1:arg1 sp print_argn*:argn sp print_sep?:lsep -> \
-         basic.Print(arg1, argn, lsep)) \
+         basic.Print([arg1] + argn + [lsep])) \
       | ('PRINT' -> basic.Print())
 
 # FIXME this is a fall-through for testing - delete it when finished
