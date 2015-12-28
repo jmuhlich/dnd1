@@ -101,6 +101,19 @@ class Print(Statement):
             return "PRINT"
 
 
+class Dim(Statement):
+
+    def __init__(self, var_refs):
+        self.var_refs = var_refs
+
+    def __repr__(self):
+        return "Dim({0.var_refs!r})".format(self)
+
+    def __str__(self):
+        refs_str = ",".join(str(r) for r in self.var_refs)
+        return "DIM {0}".format(refs_str)
+
+
 class Todo(Statement):
 
     def __init__(self, string):
