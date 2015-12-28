@@ -76,6 +76,28 @@ class Let(Statement):
         return "LET {0.reference} = {0.expression}".format(self)
 
 
+class Print(Statement):
+
+    def __init__(self, arg1=None, argn=None, lsep=None):
+        self.args = []
+        if arg1 is not None:
+            self.args.append(arg1)
+        if argn is not None:
+            self.args += sum(argn, [])
+        if lsep is not None:
+            self.args.append(lsep)
+
+    def __repr__(self):
+        return "Print({0.args!r})".format(self)
+
+    def __str__(self):
+        if self.args:
+            args_str = ''.join(str(a) for a in self.args)
+            return "PRINT {0}".format(args_str)
+        else:
+            return "PRINT"
+
+
 class Todo(Statement):
 
     def __init__(self, string):
@@ -210,3 +232,15 @@ class Rnd(Builtin):
 
 class Clk(Builtin):
     lang_name = 'CLK'
+
+
+class StringLiteral(object):
+
+    def __init__(self, content):
+        self.content = content
+
+    def __repr__(self):
+        return "String({0.content!r})".format(self)
+
+    def __str__(self):
+        return '"{0.content}"'.format(self)
