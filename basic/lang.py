@@ -73,7 +73,7 @@ class Let(Statement):
         return "Let({0.reference!r}, {0.expression!r})".format(self)
 
     def __str__(self):
-        return "LET {0.reference} = {0.expression}".format(self)
+        return "LET {0.reference}={0.expression}".format(self)
 
 
 class Print(Statement):
