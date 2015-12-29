@@ -53,14 +53,14 @@ class Base(Statement):
 
 class Restore(Statement):
 
-    def __init__(self, num):
-        self.num = num
+    def __init__(self, fh):
+        self.fh = fh
 
     def __repr__(self):
-        return "Restore({0.num!r})".format(self)
+        return "Restore({0.fh!r})".format(self)
 
     def __str__(self):
-        return "RESTORE #{0.num}".format(self)
+        return "RESTORE #{0.fh}".format(self)
 
 
 class Let(Statement):
@@ -112,6 +112,22 @@ class Dim(Statement):
     def __str__(self):
         refs_str = ",".join(str(r) for r in self.var_refs)
         return "DIM {0}".format(refs_str)
+
+
+class Read(Statement):
+
+    def __init__(self, fh, var_refs):
+        self.fh = fh
+        self.var_refs = var_refs
+
+    def __repr__(self):
+        return "Read({0.fh!r}, {0.var_refs!r})".format(self)
+
+    def __str__(self):
+        args_str = ",".join(str(r) for r in self.var_refs)
+        if self.fh is not None:
+            args_str = '#{0},'.format(self.fh) + args_str
+        return "READ {0}".format(args_str)
 
 
 class Todo(Statement):
