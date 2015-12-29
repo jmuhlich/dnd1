@@ -18,12 +18,28 @@ negation = '-' value:value -> basic.Negation(value)
 builtin = int | abs | rnd | clk
 value = number | builtin | num_ref | parens | negation
 
+str_value = string | str_ref
+
 expr = (expr:left ws '+' ws expr2:right -> basic.Add(left, right)) \
      | (expr:left ws '-' ws expr2:right -> basic.Sub(left, right)) \
      | expr2
 expr2 = (expr2:left ws '*' ws value:right -> basic.Mul(left, right)) \
       | (expr2:left ws '/' ws value:right -> basic.Div(left, right)) \
       | value
+
+bool = (bool:left sp 'AND' sp bool:right -> basic.And(left, right)) \
+     | (bool:left sp 'OR' sp bool:right -> basic.Or(left, right)) \
+     | bool2
+bool2 = (str_value:left sp '=' sp str_value:right \
+        -> basic.StringEqual(left, right)) \
+      | (str_value:left sp '<>' sp str_value:right \
+        -> basic.StringNotEqual(left, right)) \
+      | (expr:left sp '=' sp expr:right -> basic.Equal(left, right)) \
+      | (expr:left sp '<>' sp expr:right -> basic.NotEqual(left, right)) \
+      | (expr:left sp '<=' sp expr:right -> basic.LessOrEqual(left, right)) \
+      | (expr:left sp '<' sp expr:right -> basic.Less(left, right)) \
+      | (expr:left sp '>=' sp expr:right -> basic.GreaterOrEqual(left, right)) \
+      | (expr:left sp '>' sp expr:right -> basic.Greater(left, right))
 
 # Should really get N-d indexing working, but 2-d is enough for now.
 index_2 = '(' expr:expr1 ',' expr:expr2 ')' -> (expr1, expr2)
@@ -47,7 +63,7 @@ rnd = 'RND' builtin_arg:expr -> basic.Rnd(expr)
 clk = 'CLK' builtin_arg:expr -> basic.Clk(expr)
 
 print_sep = <';'|','>
-print_arg1 = (str_ref | string | expr):arg -> arg
+print_arg1 = (str_value | expr):arg -> arg
 print_argn = print_sep:sep sp print_arg1:arg -> [sep, arg]
 
 filespec = fh_literal:handle '=' string:name -> basic.FileSpec(handle, name)
@@ -73,19 +89,17 @@ input = 'INPUT ' sp any_ref:ref1 (sp ',' sp any_ref)*:refn \
 for = 'FOR ' sp num_ref_scalar:ref sp '=' expr:start sp 'TO' sp expr:end \
       -> basic.For(ref, start, end)
 next = 'NEXT ' sp num_ref_scalar:ref -> basic.Next(ref)
+if = 'IF ' sp bool:expr sp ('THEN' | 'GO' ' '? 'TO') sp integer:line_number \
+     -> basic.If(expr, line_number)
 goto = 'GO' ' '? 'TO ' sp integer:line_number -> basic.Goto(line_number)
 gosub = 'GOSUB ' sp integer:line_number -> basic.Gosub(line_number)
 return = 'RETURN' -> basic.Return()
 stop = 'STOP' -> basic.Stop()
 end = 'END' -> basic.End()
 
-
-# FIXME this is a fall-through for testing - delete it when finished
-todo = <char+>:todo_stmt -> basic.Todo(todo_stmt)
-
 statement = comment | base | restore | let | print | dim | read | write \
-          | file | data | input | for | next | goto | gosub | return | stop \
-          | end | todo
+          | file | data | input | for | next | if | goto | gosub | return \
+          | stop | end
 
 line = sp integer:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
 

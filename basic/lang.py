@@ -217,6 +217,19 @@ class Next(Statement):
             return "NEXT {0.var_ref}".format(self)
 
 
+class If(Statement):
+
+    def __init__(self, expr, line_number):
+        self.expr = expr
+        self.line_number = line_number
+
+    def __repr__(self):
+        return "If({0.expr!r}, {0.line_number!r})".format(self)
+
+    def __str__(self):
+        return "IF {0.expr} THEN {0.line_number}".format(self)
+
+
 class Goto(Statement):
 
     def __init__(self, line_number):
@@ -374,6 +387,70 @@ class Sub(object):
 
     def __str__(self):
         return "{0.a}-{0.b}".format(self)
+
+
+# Consider this class abstract; only instantiate its subclasses.
+class BooleanOperator(object):
+
+    symbol = '<undefined>'
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        return "{1}({0.a!r}, {0.b!r})".format(self, type(self).__name__)
+
+    def __str__(self):
+        return "{0.a} {1} {0.b}".format(self, self.symbol)
+
+
+class And(BooleanOperator):
+    symbol = 'AND'
+
+class Or(BooleanOperator):
+    symbol = 'OR'
+
+
+# Consider this class abstract; only instantiate its subclasses.
+class Comparison(object):
+
+    symbol = '<undefined>'
+
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        return "{1}({0.a!r}, {0.b!r})".format(self, type(self).__name__)
+
+    def __str__(self):
+        return "{0.a}{1}{0.b}".format(self, self.symbol)
+
+
+class StringEqual(Comparison):
+    symbol = '='
+
+class StringNotEqual(Comparison):
+    symbol = '<>'
+
+class Equal(Comparison):
+    symbol = '='
+
+class NotEqual(Comparison):
+    symbol = '<>'
+
+class LessOrEqual(Comparison):
+    symbol = '<='
+
+class Less(Comparison):
+    symbol = '<'
+
+class GreaterOrEqual(Comparison):
+    symbol = '>='
+
+class Greater(Comparison):
+    symbol = '>'
 
 
 # Consider this class abstract; only instantiate its subclasses.
