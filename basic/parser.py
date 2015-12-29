@@ -34,7 +34,8 @@ any_ref = str_ref | num_ref
 dim_2 = '(' integer:d1 ',' integer:d2 ')' -> (d1, d2)
 dim_1 = '(' integer:d1 ')' -> (d1,)
 dim_ref = (strvar|numvar):var (dim_2|dim_1):dims -> basic.Reference(var, dims)
-fh_ref = '#' (num_ref|integer):fh
+fh_literal = '#' integer
+fh_ref = ('#' num_ref) | fh_literal
 
 builtin_arg = '(' expr:expr ')' -> expr
 int = 'INT' builtin_arg:expr -> basic.Int(expr)
@@ -46,21 +47,26 @@ print_sep = <';'|','>
 print_arg1 = (str_ref | string | expr):arg -> arg
 print_argn = print_sep:sep sp print_arg1:arg -> [sep, arg]
 
+filespec = fh_literal:handle '=' string:name -> basic.FileSpec(handle, name)
+
 comment = 'REM' (' ' sp <char*> | -> ''):content -> basic.Comment(content)
 base = 'BASE ' sp integer:num -> basic.Base(num)
 restore = 'RESTORE ' sp fh_ref:fh -> basic.Restore(fh)
 let = ('LET ' sp)? num_ref:ref sp '=' sp expr:expr -> basic.Let(ref, expr)
-print = ('PRINT ' sp print_arg1:arg1 sp print_argn*:argn sp print_sep?:lsep -> \
-         basic.Print([arg1] + argn + [lsep])) \
+print = ('PRINT ' sp print_arg1:arg1 sp print_argn*:argn sp print_sep?:lsep \
+         -> basic.Print([arg1] + argn + [lsep])) \
       | ('PRINT' -> basic.Print())
 dim = 'DIM ' sp dim_ref:ref1 (sp ',' sp dim_ref)*:refn -> basic.Dim([ref1] + refn)
 read = 'READ ' (sp fh_ref:fh sp ',' -> fh)?:fh sp any_ref:ref1 \
        (sp ',' sp any_ref)*:refn -> basic.Read(fh, [ref1] + refn)
+file = 'FILE ' sp filespec:fs1 (sp ',' sp filespec)*:fsn \
+       -> basic.File([fs1] + fsn)
 
 # FIXME this is a fall-through for testing - delete it when finished
 todo = <char+>:todo_stmt -> basic.Todo(todo_stmt)
 
-statement = comment | base | restore | let | print | dim | read | todo
+statement = comment | base | restore | let | print | dim | read | file \
+          | todo
 
 line = sp integer:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
 

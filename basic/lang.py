@@ -130,6 +130,19 @@ class Read(Statement):
         return "READ {0}".format(args_str)
 
 
+class File(Statement):
+
+    def __init__(self, filespecs):
+        self.filespecs = filespecs
+
+    def __repr__(self):
+        return "File({0.filespecs!r})".format(self)
+
+    def __str__(self):
+        filespecs_str = ",".join(str(s) for s in self.filespecs)
+        return "FILE {0}".format(filespecs_str)
+
+
 class Todo(Statement):
 
     def __init__(self, string):
@@ -279,3 +292,16 @@ class StringLiteral(object):
 
     def __str__(self):
         return '"{0.content}"'.format(self)
+
+
+class FileSpec(object):
+
+    def __init__(self, handle, name):
+        self.handle = handle
+        self.name = name
+
+    def __repr__(self):
+        return "FileSpec({0.handle!r}, {0.name!r})".format(self)
+
+    def __str__(self):
+        return "#{0.handle}={0.name}".format(self)
