@@ -29,7 +29,9 @@ expr2 = (expr2:left ws '*' ws value:right -> basic.Mul(left, right)) \
 index_2 = '(' expr:expr1 ',' expr:expr2 ')' -> (expr1, expr2)
 index_1 = '(' expr:expr ')' -> (expr,)
 indices = index_2 | index_1
-num_ref = numvar:var indices?:indices -> basic.Reference(var, indices)
+num_ref_scalar = numvar:var -> basic.Reference(var)
+num_ref_array = numvar:var indices:indices -> basic.Reference(var, indices)
+num_ref = num_ref_array | num_ref_scalar
 str_ref = strvar:var indices?:indices -> basic.Reference(var, indices)
 any_ref = str_ref | num_ref
 dim_2 = '(' integer:d1 ',' integer:d2 ')' -> (d1, d2)
@@ -68,6 +70,9 @@ data = 'DATA ' sp literal:val1 sp (sp ',' sp literal)*:valn \
        -> basic.Data([val1] + valn)
 input = 'INPUT ' sp any_ref:ref1 (sp ',' sp any_ref)*:refn \
         -> basic.Input([ref1] + refn)
+for = 'FOR ' sp num_ref_scalar:ref sp '=' expr:start sp 'TO' sp expr:end \
+      -> basic.For(ref, start, end)
+next = 'NEXT ' sp num_ref_scalar:ref -> basic.Next(ref)
 goto = 'GO' ' '? 'TO ' sp integer:line_number -> basic.Goto(line_number)
 gosub = 'GOSUB ' sp integer:line_number -> basic.Gosub(line_number)
 return = 'RETURN' -> basic.Return()
@@ -79,7 +84,8 @@ end = 'END' -> basic.End()
 todo = <char+>:todo_stmt -> basic.Todo(todo_stmt)
 
 statement = comment | base | restore | let | print | dim | read | write \
-          | file | data | input | goto | gosub | return | stop | end | todo
+          | file | data | input | for | next | goto | gosub | return | stop \
+          | end | todo
 
 line = sp integer:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
 

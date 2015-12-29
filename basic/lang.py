@@ -185,6 +185,38 @@ class Input(Statement):
         return "INPUT {0}".format(vars_str)
 
 
+class For(Statement):
+
+    def __init__(self, var_ref, start, end):
+        self.var_ref = var_ref
+        self.start = start
+        self.end = end
+
+    def __repr__(self):
+        return "For({0.var_ref!r}, {0.start!r}, {0.end!r})".format(self)
+
+    def __str__(self):
+        return "FOR {0.var_ref}={0.start} TO {0.end}".format(self)
+
+
+class Next(Statement):
+
+    def __init__(self, var_ref=None):
+        self.var_ref = var_ref
+
+    def __repr__(self):
+        if self.var_ref is None:
+            return "Next()"
+        else:
+            return "Next({0.var_ref!r})".format(self)
+
+    def __str__(self):
+        if self.var_ref is None:
+            return "NEXT"
+        else:
+            return "NEXT {0.var_ref}".format(self)
+
+
 class Goto(Statement):
 
     def __init__(self, line_number):
