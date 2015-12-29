@@ -70,6 +70,7 @@ input = 'INPUT ' sp any_ref:ref1 (sp ',' sp any_ref)*:refn \
         -> basic.Input([ref1] + refn)
 goto = 'GO' ' '? 'TO ' sp integer:line_number -> basic.Goto(line_number)
 gosub = 'GOSUB ' sp integer:line_number -> basic.Gosub(line_number)
+return = 'RETURN' -> basic.Return()
 stop = 'STOP' -> basic.Stop()
 end = 'END' -> basic.End()
 
@@ -78,7 +79,7 @@ end = 'END' -> basic.End()
 todo = <char+>:todo_stmt -> basic.Todo(todo_stmt)
 
 statement = comment | base | restore | let | print | dim | read | write \
-          | file | data | input | goto | gosub | stop | end | todo
+          | file | data | input | goto | gosub | return | stop | end | todo
 
 line = sp integer:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
 

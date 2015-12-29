@@ -209,6 +209,15 @@ class Gosub(Statement):
         return "GOSUB {0.line_number}".format(self)
 
 
+class Return(Statement):
+
+    def __repr__(self):
+        return "Return()"
+
+    def __str__(self):
+        return "RETURN"
+
+
 class Stop(Statement):
 
     def __repr__(self):
