@@ -11,6 +11,7 @@ varname = <letter letterOrDigit*>
 numvar = varname
 strvar = <varname '$'>
 string = '"' <(:c ?(c != '"'))+>:content '"' -> basic.StringLiteral(content)
+literal = number | string
 
 parens =  "(" expr:expr ")" -> basic.Parens(expr)
 negation = '-' value:value -> basic.Negation(value)
@@ -61,12 +62,16 @@ read = 'READ ' (sp fh_ref:fh sp ',' -> fh)?:fh sp any_ref:ref1 \
        (sp ',' sp any_ref)*:refn -> basic.Read(fh, [ref1] + refn)
 file = 'FILE ' sp filespec:fs1 (sp ',' sp filespec)*:fsn \
        -> basic.File([fs1] + fsn)
+data = 'DATA ' sp literal:val1 sp (sp ',' sp literal)*:valn \
+       -> basic.Data([val1] + valn)
+input = 'INPUT ' sp any_ref:ref1 (sp ',' sp any_ref)*:refn \
+        -> basic.Input([ref1] + refn)
 
 # FIXME this is a fall-through for testing - delete it when finished
 todo = <char+>:todo_stmt -> basic.Todo(todo_stmt)
 
 statement = comment | base | restore | let | print | dim | read | file \
-          | todo
+          | data | input | todo
 
 line = sp integer:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
 

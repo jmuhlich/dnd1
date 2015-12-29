@@ -143,6 +143,32 @@ class File(Statement):
         return "FILE {0}".format(filespecs_str)
 
 
+class Data(Statement):
+
+    def __init__(self, values):
+        self.values = values
+
+    def __repr__(self):
+        return "Data({0.values!r})".format(self)
+
+    def __str__(self):
+        values_str = ",".join(str(v) for v in self.values)
+        return "DATA {0}".format(values_str)
+
+
+class Input(Statement):
+
+    def __init__(self, var_refs):
+        self.var_refs = var_refs
+
+    def __repr__(self):
+        return "Input({0.var_refs!r})".format(self)
+
+    def __str__(self):
+        vars_str = ",".join(str(r) for r in self.var_refs)
+        return "INPUT {0}".format(vars_str)
+
+
 class Todo(Statement):
 
     def __init__(self, string):
