@@ -130,6 +130,22 @@ class Read(Statement):
         return "READ {0}".format(args_str)
 
 
+class Write(Statement):
+
+    def __init__(self, fh, var_refs):
+        self.fh = fh
+        self.var_refs = var_refs
+
+    def __repr__(self):
+        return "Write({0.fh!r}, {0.var_refs!r})".format(self)
+
+    def __str__(self):
+        args_str = ",".join(str(r) for r in self.var_refs)
+        if self.fh is not None:
+            args_str = '#{0},'.format(self.fh) + args_str
+        return "WRITE {0}".format(args_str)
+
+
 class File(Statement):
 
     def __init__(self, filespecs):
@@ -167,6 +183,48 @@ class Input(Statement):
     def __str__(self):
         vars_str = ",".join(str(r) for r in self.var_refs)
         return "INPUT {0}".format(vars_str)
+
+
+class Goto(Statement):
+
+    def __init__(self, line_number):
+        self.line_number = line_number
+
+    def __repr__(self):
+        return "Goto({0.line_number!r})".format(self)
+
+    def __str__(self):
+        return "GO TO {0.line_number}".format(self)
+
+
+class Gosub(Statement):
+
+    def __init__(self, line_number):
+        self.line_number = line_number
+
+    def __repr__(self):
+        return "Gosub({0.line_number!r})".format(self)
+
+    def __str__(self):
+        return "GOSUB {0.line_number}".format(self)
+
+
+class Stop(Statement):
+
+    def __repr__(self):
+        return "Stop()"
+
+    def __str__(self):
+        return "STOP"
+
+
+class End(Statement):
+
+    def __repr__(self):
+        return "End()"
+
+    def __str__(self):
+        return "END"
 
 
 class Todo(Statement):

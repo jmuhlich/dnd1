@@ -60,18 +60,25 @@ print = ('PRINT ' sp print_arg1:arg1 sp print_argn*:argn sp print_sep?:lsep \
 dim = 'DIM ' sp dim_ref:ref1 (sp ',' sp dim_ref)*:refn -> basic.Dim([ref1] + refn)
 read = 'READ ' (sp fh_ref:fh sp ',' -> fh)?:fh sp any_ref:ref1 \
        (sp ',' sp any_ref)*:refn -> basic.Read(fh, [ref1] + refn)
+write = 'WRITE ' (sp fh_ref:fh sp ',' -> fh)?:fh sp any_ref:ref1 \
+        (sp ',' sp any_ref)*:refn -> basic.Write(fh, [ref1] + refn)
 file = 'FILE ' sp filespec:fs1 (sp ',' sp filespec)*:fsn \
        -> basic.File([fs1] + fsn)
 data = 'DATA ' sp literal:val1 sp (sp ',' sp literal)*:valn \
        -> basic.Data([val1] + valn)
 input = 'INPUT ' sp any_ref:ref1 (sp ',' sp any_ref)*:refn \
         -> basic.Input([ref1] + refn)
+goto = 'GO' ' '? 'TO ' sp integer:line_number -> basic.Goto(line_number)
+gosub = 'GOSUB ' sp integer:line_number -> basic.Gosub(line_number)
+stop = 'STOP' -> basic.Stop()
+end = 'END' -> basic.End()
+
 
 # FIXME this is a fall-through for testing - delete it when finished
 todo = <char+>:todo_stmt -> basic.Todo(todo_stmt)
 
-statement = comment | base | restore | let | print | dim | read | file \
-          | data | input | todo
+statement = comment | base | restore | let | print | dim | read | write \
+          | file | data | input | goto | gosub | stop | end | todo
 
 line = sp integer:num ' ' sp statement:stmt sp nl -> basic.Line(num, stmt)
 
