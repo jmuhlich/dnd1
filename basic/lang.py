@@ -78,24 +78,34 @@ class Let(Statement):
 
 class Print(Statement):
 
-    def __init__(self, args=None):
-        self.args = []
+    ZONE = 1
+    IMMEDIATE = 2
+
+    def __init__(self, args=None, control=None, newline=None):
         if args is not None:
-            for a in args:
-                if isinstance(a, list):
-                    self.args.extend(a)
-                elif a is not None:
-                    self.args.append(a)
+            self.args = args
+        else:
+            self.args = []
+        self.control = control
+        self.newline = newline
 
     def __repr__(self):
         if self.args:
-            return "Print({0.args!r})".format(self)
+            if self.control == Print.ZONE:
+                control = 'ZONE'
+            else:
+                control = 'IMMEDIATE'
+            return ("Print({0.args!r}, {1}, {0.newline!r})" \
+                    .format(self, control))
         else:
             return "Print()"
 
     def __str__(self):
         if self.args:
-            args_str = ''.join(str(a) for a in self.args)
+            separator = ',' if self.control == Print.ZONE else ';'
+            args_str = separator.join(str(a) for a in self.args)
+            if not self.newline:
+                args_str += separator
             return "PRINT {0}".format(args_str)
         else:
             return "PRINT"
@@ -279,18 +289,6 @@ class End(Statement):
 
     def __str__(self):
         return "END"
-
-
-class Todo(Statement):
-
-    def __init__(self, string):
-        self.string = string
-
-    def __repr__(self):
-        return "Todo({0.string!r})".format(self)
-
-    def __str__(self):
-        return "<<TODO>> {0.string}".format(self)
 
 
 class Reference(object):

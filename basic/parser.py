@@ -41,17 +41,16 @@ bool2 = (str_value:left sp '=' sp str_value:right \
       | (expr:left sp '>=' sp expr:right -> basic.GreaterOrEqual(left, right)) \
       | (expr:left sp '>' sp expr:right -> basic.Greater(left, right))
 
-# Should really get N-d indexing working, but 2-d is enough for now.
-index_2 = '(' expr:expr1 ',' expr:expr2 ')' -> (expr1, expr2)
-index_1 = '(' expr:expr ')' -> (expr,)
+index_2 = '(' expr:expr1 ',' expr:expr2 ')' -> [expr1, expr2]
+index_1 = '(' expr:expr ')' -> [expr]
 indices = index_2 | index_1
 num_ref_scalar = numvar:var -> basic.Reference(var)
 num_ref_array = numvar:var indices:indices -> basic.Reference(var, indices)
 num_ref = num_ref_array | num_ref_scalar
 str_ref = strvar:var indices?:indices -> basic.Reference(var, indices)
 any_ref = str_ref | num_ref
-dim_2 = '(' integer:d1 ',' integer:d2 ')' -> (d1, d2)
-dim_1 = '(' integer:d1 ')' -> (d1,)
+dim_2 = '(' integer:d1 ',' integer:d2 ')' -> [d1, d2]
+dim_1 = '(' integer:d1 ')' -> [d1]
 dim_ref = (strvar|numvar):var (dim_2|dim_1):dims -> basic.Reference(var, dims)
 fh_literal = '#' integer
 fh_ref = ('#' num_ref) | fh_literal
@@ -62,9 +61,9 @@ abs = 'ABS' builtin_arg:expr -> basic.Abs(expr)
 rnd = 'RND' builtin_arg:expr -> basic.Rnd(expr)
 clk = 'CLK' builtin_arg:expr -> basic.Clk(expr)
 
-print_sep = <';'|','>
 print_arg1 = (str_value | expr):arg -> arg
-print_argn = print_sep:sep sp print_arg1:arg -> [sep, arg]
+print_argn_zone = ',' sp print_arg1:arg -> arg
+print_argn_immediate = ';' sp print_arg1:arg -> arg
 
 filespec = fh_literal:handle '=' string:name -> basic.FileSpec(handle, name)
 
@@ -72,8 +71,18 @@ comment = 'REM' (' ' sp <char*> | -> ''):content -> basic.Comment(content)
 base = 'BASE ' sp integer:num -> basic.Base(num)
 restore = 'RESTORE ' sp fh_ref:fh -> basic.Restore(fh)
 let = ('LET ' sp)? num_ref:ref sp '=' sp expr:expr -> basic.Let(ref, expr)
-print = ('PRINT ' sp print_arg1:arg1 sp print_argn*:argn sp print_sep?:lsep \
-         -> basic.Print([arg1] + argn + [lsep])) \
+# Not sure why using '*' on the first two alternatives didn't work, and instead
+# I had to use '+' and split the single-arg cases out on their own.
+print = ('PRINT ' sp print_arg1:arg1 sp print_argn_zone+:argn sp ','?:lsep \
+         -> basic.Print([arg1] + argn, basic.Print.ZONE, lsep is None)) \
+      | ('PRINT ' sp print_arg1:arg1 sp print_argn_immediate+:argn sp ';'?:lsep \
+         -> basic.Print([arg1] + argn, basic.Print.IMMEDIATE, lsep is None)) \
+      | ('PRINT ' sp print_arg1:arg1 sp ',' \
+         -> basic.Print([arg1], basic.Print.ZONE, False)) \
+      | ('PRINT ' sp print_arg1:arg1 sp ';' \
+         -> basic.Print([arg1], basic.Print.IMMEDIATE, False)) \
+      | ('PRINT ' sp print_arg1:arg1 \
+         -> basic.Print([arg1], basic.Print.ZONE, True)) \
       | ('PRINT' -> basic.Print())
 dim = 'DIM ' sp dim_ref:ref1 (sp ',' sp dim_ref)*:refn -> basic.Dim([ref1] + refn)
 read = 'READ ' (sp fh_ref:fh sp ',' -> fh)?:fh sp any_ref:ref1 \
@@ -112,3 +121,7 @@ class Parser(object):
     def __init__(self):
         self.grammar = parsley.makeGrammar(grammar_source,
                                            {'basic': basic.lang})
+
+    def parse(self, text):
+        parsley_parser = self.grammar(text)
+        return parsley_parser.program()
