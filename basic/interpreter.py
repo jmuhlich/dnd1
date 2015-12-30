@@ -30,7 +30,7 @@ class Interpreter(object):
             while True:
                 self.step()
         except ProgramStop:
-            pass
+            print >> sys.stderr, "\nProgram terminated."
 
     def step(self):
         line = self.program.lines[self.line_index]
@@ -58,6 +58,11 @@ class Interpreter(object):
     def stmt_Comment(self, st):
         return False
 
+    def stmt_Data(self, st):
+        # This has no direct effect, rather we will scan for Data statements
+        # upon execution of Read statements.
+        return False
+
     def stmt_Dim(self, st):
         for ref in st.var_refs:
             name = ref.variable
@@ -76,6 +81,37 @@ class Interpreter(object):
             name = fs.name.content
             f = open(name, 'rw')
             self.files[fs.handle] = f
+
+    #def stmt_If(self, st):
+        
+
+    def stmt_Input(self, st):
+        num_vars = len(st.var_refs)
+        is_numeric = [not n.variable.endswith('$') for n in st.var_refs]
+        values = []
+        while True:
+            try:
+                content = raw_input('?')
+            except EOFError:
+                raise ProgramStop
+            values = content.split(',')
+            if len(values) < num_vars:
+                print >> sys.stderr, "Too few values"
+            elif len(values) > num_vars:
+                print >> sys.stderr, "Too few values"
+            else:
+                break
+        for i, v in enumerate(values):
+            if is_numeric[i]:
+                try:
+                    v = float(v)
+                except ValueError:
+                    # Return 0 when we can't parse input as a number.
+                    v = 0.0
+                values[i] = v
+        for ref, value in zip(st.var_refs, values):
+            self.write_reference(ref, value)
+        
 
     def stmt_Let(self, st):
         value = self.eval_expr(st.expression)
@@ -114,6 +150,9 @@ class Interpreter(object):
 
     def term_float(self, expr):
         return expr
+
+    def term_StringLiteral(self, expr):
+        return expr.content
 
     def math_op(self, expr, op):
         a = self.eval_expr(expr.a)
