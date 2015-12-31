@@ -207,6 +207,30 @@ class Interpreter(object):
             sys.stdout.write('\n')
         return False
 
+    def stmt_Read(self, st):
+        if st.fh is None:
+            for ref in st.var_refs:
+                self.write_reference(ref, self.read_data())
+        else:
+            raise BasicNotImplementedError("Read #X not implemented")
+
+    def read_data(self):
+        while (self.data_line_index < len(self.program.lines)
+               and (not isinstance(self.program.lines[self.data_line_index].statement,
+                                   lang.Data)
+                    or (self.data_item_index >=
+                        len(self.program.lines[self.data_line_index].statement.values)))):
+            self.data_line_index += 1
+            self.data_item_index = 0
+        if self.data_line_index == len(self.program.lines):
+            msg = ("Insufficient DATA statements for READ on line {}"
+                   .format(self.current_line_number()))
+            raise BasicRuntimeError(msg)
+        data_stmt = self.program.lines[self.data_line_index].statement
+        value = data_stmt.values[self.data_item_index]
+        self.data_item_index += 1
+        return value
+
     def stmt_Restore(self, st):
         handle = self.eval_expr(st.fh)
         if handle not in self.files:
