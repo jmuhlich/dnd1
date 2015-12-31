@@ -302,7 +302,9 @@ class Interpreter(object):
         if reference.indices is None:
             indices = None
         else:
-            indices = [self.eval_expr(i) for i in reference.indices]
+            indices = [int(self.eval_expr(i)) for i in reference.indices]
+            if len(indices) == 1:
+                indices.append(0)
         return name, indices
 
 
