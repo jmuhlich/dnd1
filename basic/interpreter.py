@@ -41,6 +41,9 @@ class Interpreter(object):
         line = self.program.lines[self.line_index]
         self.exec_line(line)
 
+    def current_line_number(self):
+        return self.program.lines[self.line_index].number
+
     def exec_line(self, line):
         if self.trace:
             print >> sys.stderr, '>>> {}'.format(line)
@@ -141,7 +144,7 @@ class Interpreter(object):
                 else:
                     return i
         msg = ("FOR statement on line {} has no matching NEXT"
-               .format(self.line_index))
+               .format(self.current_line_number()))
         raise BasicRuntimeError(msg)
 
     def stmt_If(self, st):
