@@ -81,7 +81,7 @@ class Print(Statement):
     ZONE = 1
     IMMEDIATE = 2
 
-    def __init__(self, args=None, control=None, newline=None):
+    def __init__(self, args=None, control=None, newline=True):
         if args is not None:
             self.args = args
         else:
