@@ -147,6 +147,10 @@ class Interpreter(object):
                .format(self.current_line_number()))
         raise BasicRuntimeError(msg)
 
+    def stmt_Goto(self, st):
+        self.jump_to_line(st.line_number)
+        return True
+
     def stmt_If(self, st):
         result = self.eval_expr(st.expr)
         if result:
