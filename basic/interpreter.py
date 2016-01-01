@@ -286,6 +286,12 @@ class Interpreter(object):
     def term_Div(self, expr):
         return self.math_op(expr, operator.div)
 
+    def term_Equal(self, expr):
+        return self.math_op(expr, operator.eq)
+
+    def term_NotEqual(self, expr):
+        return self.math_op(expr, operator.ne)
+
     def string_op(self, expr, op):
         a = self.eval_expr(expr.a).lower()
         b = self.eval_expr(expr.b).lower()
