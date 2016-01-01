@@ -233,6 +233,8 @@ class Interpreter(object):
         data_stmt = self.program.lines[self.data_line_index].statement
         value = data_stmt.values[self.data_item_index]
         self.data_item_index += 1
+        if isinstance(value, lang.StringLiteral):
+            value = value.content
         return value
 
     def stmt_Restore(self, st):
