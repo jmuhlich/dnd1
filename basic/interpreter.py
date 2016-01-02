@@ -147,6 +147,12 @@ class Interpreter(object):
                .format(self.current_line_number()))
         raise BasicRuntimeError(msg)
 
+    def stmt_Gosub(self, st):
+        frame = SubFrame(self.line_index)
+        self.sub_stack.append(frame)
+        self.jump_to_line(st.line_number)
+        return True
+
     def stmt_Goto(self, st):
         self.jump_to_line(st.line_number)
         return True
@@ -244,6 +250,11 @@ class Interpreter(object):
             raise BasicRuntimeError("File #{0} not open".format(handle))
         self.files[handle].seek(0)
         return False
+
+    def stmt_Return(self, st):
+        frame = self.sub_stack.pop()
+        self.line_index = frame.gosub_index + 1
+        return True
 
     def stmt_Stop(self, st):
         raise ProgramStop
@@ -376,6 +387,12 @@ class LoopFrame(object):
         self.end = end
         self.for_index = for_index
         self.next_index = next_index
+
+
+class SubFrame(object):
+
+    def __init__(self, gosub_index):
+        self.gosub_index = gosub_index
 
 
 class ProgramStop(Exception):
