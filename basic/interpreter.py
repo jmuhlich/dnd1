@@ -422,3 +422,4 @@ class BasicRuntimeError(Exception):
 if __name__ == '__main__':
     path = sys.argv[1]
     interpreter = Interpreter(path)
+    interpreter.run()
