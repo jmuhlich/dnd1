@@ -174,6 +174,8 @@ class Interpreter(object):
                 content = raw_input('?')
             except EOFError:
                 raise ProgramStop
+            # FIXME This is wrong - invalid chars terminate numbers and CR
+            # terminates strings.
             values = content.split(',')
             if len(values) < num_vars:
                 print >> sys.stderr, "Too few values"
@@ -186,6 +188,7 @@ class Interpreter(object):
                 try:
                     v = float(v)
                 except ValueError:
+                    # FIXME This is also wrong - see FIXME above.
                     # Return 0 when we can't parse input as a number.
                     v = 0.0
                 values[i] = v
