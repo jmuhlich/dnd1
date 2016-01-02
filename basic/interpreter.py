@@ -304,6 +304,18 @@ class Interpreter(object):
     def term_NotEqual(self, expr):
         return self.math_op(expr, operator.ne)
 
+    def term_Less(self, expr):
+        return self.math_op(expr, operator.lt)
+
+    def term_LessOrEqual(self, expr):
+        return self.math_op(expr, operator.le)
+
+    def term_Greater(self, expr):
+        return self.math_op(expr, operator.gt)
+
+    def term_GreaterOrEqual(self, expr):
+        return self.math_op(expr, operator.ge)
+
     def string_op(self, expr, op):
         a = self.eval_expr(expr.a).lower()
         b = self.eval_expr(expr.b).lower()
