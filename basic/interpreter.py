@@ -202,11 +202,12 @@ class Interpreter(object):
     def stmt_Print(self, st):
         for arg in st.args:
             value = self.eval_expr(arg)
+            if not isinstance(value, basestring):
+                value = "{: .7g}".format(value)
             if st.control == st.ZONE:
                 sys.stdout.write('%-14s' % value)
             else:
-                # FIXME implement proper numeric formatting (esp. spaces)
-                sys.stdout.write('%s' % value)
+                sys.stdout.write(value)
         if st.newline:
             sys.stdout.write('\n')
         return False
