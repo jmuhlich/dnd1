@@ -2,10 +2,10 @@ import sys
 import os
 import random
 import operator
-from basic import Parser, lang
+from . import Parser, lang
 
 
-class Interpreter(object):
+class Interpreter:
 
     def __init__(self, source_path, trace=None):
         self.source_path = source_path
@@ -35,7 +35,7 @@ class Interpreter(object):
                 self.step()
         except ProgramStop:
             pass
-        print "\n< Program terminated >"
+        print("\n< Program terminated >")
 
     def step(self):
         line = self.program.lines[self.line_index]
@@ -46,7 +46,7 @@ class Interpreter(object):
 
     def exec_line(self, line):
         if self.trace:
-            print >> sys.stderr, '>>> {}'.format(line)
+            print('>>> {}'.format(line), file=sys.stderr)
         statement = line.statement
         statement_name = type(statement).__name__
         handler_name = 'stmt_' + statement_name
@@ -103,7 +103,7 @@ class Interpreter(object):
                 msg = "File #{0} already opened".format(fs.handle)
                 raise BasicRuntimeError(msg)
             name = fs.name.content
-            f = open(name, 'rw')
+            f = open(name, 'r+')
             self.files[fs.handle] = f
         return False
 
@@ -171,16 +171,16 @@ class Interpreter(object):
         values = []
         while True:
             try:
-                content = raw_input('?')
+                content = input('?')
             except EOFError:
                 raise ProgramStop
             # FIXME This is wrong - invalid chars terminate numbers and CR
             # terminates strings.
             values = content.split(',')
             if len(values) < num_vars:
-                print >> sys.stderr, "Too few values"
+                print("Too few values", file=sys.stderr)
             elif len(values) > num_vars:
-                print >> sys.stderr, "Too few values"
+                print("Too few values", file=sys.stderr)
             else:
                 break
         for i, v in enumerate(values):
@@ -211,7 +211,7 @@ class Interpreter(object):
     def stmt_Print(self, st):
         for arg in st.args:
             value = self.eval_expr(arg)
-            if not isinstance(value, basestring):
+            if not isinstance(value, str):
                 value = "{: .7g}".format(value)
             if st.control == st.ZONE:
                 sys.stdout.write('%-14s' % value)
@@ -371,7 +371,7 @@ class Interpreter(object):
         return name, indices
 
 
-class Array(object):
+class Array:
 
     def __init__(self, dims):
         self.dim1, self.dim2 = dims
@@ -394,7 +394,7 @@ class StringArray(Array):
     FILL = ''
 
 
-class LoopFrame(object):
+class LoopFrame:
 
     def __init__(self, var_ref, start, end, for_index, next_index):
         self.var_ref = var_ref
@@ -404,7 +404,7 @@ class LoopFrame(object):
         self.next_index = next_index
 
 
-class SubFrame(object):
+class SubFrame:
 
     def __init__(self, gosub_index):
         self.gosub_index = gosub_index

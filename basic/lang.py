@@ -1,4 +1,4 @@
-class Program(object):
+class Program:
 
     def __init__(self, lines):
         self.lines = lines
@@ -7,7 +7,7 @@ class Program(object):
         return "Program(<{0} lines>)".format(len(self.lines))
 
 
-class Line(object):
+class Line:
 
     def __init__(self, number, statement):
         self.number = number
@@ -20,7 +20,7 @@ class Line(object):
         return "{0.number} {0.statement}".format(self)
 
 
-class Statement(object):
+class Statement:
     pass
 
 
@@ -291,7 +291,7 @@ class End(Statement):
         return "END"
 
 
-class Reference(object):
+class Reference:
 
     def __init__(self, variable, indices=None):
         self.variable = variable
@@ -311,7 +311,7 @@ class Reference(object):
             return "{0}({1})".format(self.variable, indices_str)
 
 
-class Negation(object):
+class Negation:
 
     def __init__(self, expression):
         self.expression = expression
@@ -323,7 +323,7 @@ class Negation(object):
         return "-{0.expression}".format(self)
 
 
-class Parens(object):
+class Parens:
 
     def __init__(self, expression):
         self.expression = expression
@@ -335,7 +335,7 @@ class Parens(object):
         return "({0.expression})".format(self)
 
 
-class Mul(object):
+class Mul:
 
     def __init__(self, a, b):
         self.a = a
@@ -348,7 +348,7 @@ class Mul(object):
         return "{0.a}*{0.b}".format(self)
 
 
-class Div(object):
+class Div:
 
     def __init__(self, a, b):
         self.a = a
@@ -361,7 +361,7 @@ class Div(object):
         return "{0.a}/{0.b}".format(self)
 
 
-class Add(object):
+class Add:
 
     def __init__(self, a, b):
         self.a = a
@@ -374,7 +374,7 @@ class Add(object):
         return "{0.a}+{0.b}".format(self)
 
 
-class Sub(object):
+class Sub:
 
     def __init__(self, a, b):
         self.a = a
@@ -388,7 +388,7 @@ class Sub(object):
 
 
 # Consider this class abstract; only instantiate its subclasses.
-class BooleanOperator(object):
+class BooleanOperator:
 
     symbol = '<undefined>'
 
@@ -411,7 +411,7 @@ class Or(BooleanOperator):
 
 
 # Consider this class abstract; only instantiate its subclasses.
-class Comparison(object):
+class Comparison:
 
     symbol = '<undefined>'
 
@@ -452,7 +452,7 @@ class Greater(Comparison):
 
 
 # Consider this class abstract; only instantiate its subclasses.
-class Builtin(object):
+class Builtin:
 
     lang_name = '<undefined>'
 
@@ -482,7 +482,7 @@ class Clk(Builtin):
     lang_name = 'CLK'
 
 
-class StringLiteral(object):
+class StringLiteral:
 
     def __init__(self, content):
         self.content = content
@@ -494,7 +494,7 @@ class StringLiteral(object):
         return '"{0.content}"'.format(self)
 
 
-class FileSpec(object):
+class FileSpec:
 
     def __init__(self, handle, name):
         self.handle = handle

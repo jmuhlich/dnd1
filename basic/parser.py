@@ -1,4 +1,4 @@
-import basic
+from . import lang
 import parsley
 
 grammar_source = """
@@ -116,11 +116,12 @@ program = line*:lines -> basic.Program(lines)
 
 """
 
-class Parser(object):
+class Parser:
 
     def __init__(self):
-        self.grammar = parsley.makeGrammar(grammar_source,
-                                           {'basic': basic.lang})
+        self.grammar = parsley.makeGrammar(
+            grammar_source, {'basic': lang}
+        )
 
     def parse(self, text):
         parsley_parser = self.grammar(text)
