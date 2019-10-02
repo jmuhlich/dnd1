@@ -1,33 +1,36 @@
-class Program:
-
-    def __init__(self, lines):
-        self.lines = lines
-
-    def __repr__(self):
-        return "Program(<{0} lines>)".format(len(self.lines))
+from dataclasses import dataclass
+from typing import List, Union, Any
 
 
-class Line:
+@dataclass
+class Reference:
 
-    def __init__(self, number, statement):
-        self.number = number
-        self.statement = statement
+    variable: str
+    indices: Union[None, List[int]] = None
 
     def __repr__(self):
-        return "Line({0.number}, {0.statement!r})".format(self)
+        if self.indices is None:
+            return "Reference('{0.variable}')".format(self)
+        else:
+            return "Reference('{0.variable}', {0.indices!r})".format(self)
 
     def __str__(self):
-        return "{0.number} {0.statement}".format(self)
+        if self.indices is None:
+            return self.variable
+        else:
+            indices_str = ",".join(map(str, self.indices))
+            return "{0}({1})".format(self.variable, indices_str)
 
 
+@dataclass
 class Statement:
     pass
 
 
+@dataclass
 class Comment(Statement):
 
-    def __init__(self, content):
-        self.content = content
+    content: str
 
     def __repr__(self):
         return "Comment('{0.content}')".format(self)
@@ -38,11 +41,10 @@ class Comment(Statement):
         else:
             return "REM"
 
-
+@dataclass
 class Base(Statement):
 
-    def __init__(self, number):
-        self.number = number
+    number: int
 
     def __repr__(self):
         return "Base({0.number})".format(self)
@@ -51,10 +53,10 @@ class Base(Statement):
         return "BASE {0.number}".format(self)
 
 
+@dataclass
 class Restore(Statement):
 
-    def __init__(self, fh):
-        self.fh = fh
+    fh: int
 
     def __repr__(self):
         return "Restore({0.fh!r})".format(self)
@@ -63,11 +65,12 @@ class Restore(Statement):
         return "RESTORE #{0.fh}".format(self)
 
 
+@dataclass
 class Let(Statement):
 
-    def __init__(self, reference, expression):
-        self.reference = reference
-        self.expression = expression
+    reference: Reference
+    # FIXME: Base class for expressions?
+    expression: Any
 
     def __repr__(self):
         return "Let({0.reference!r}, {0.expression!r})".format(self)
@@ -291,26 +294,6 @@ class End(Statement):
         return "END"
 
 
-class Reference:
-
-    def __init__(self, variable, indices=None):
-        self.variable = variable
-        self.indices = indices
-
-    def __repr__(self):
-        if self.indices is None:
-            return "Reference('{0.variable}')".format(self)
-        else:
-            return "Reference('{0.variable}', {0.indices!r})".format(self)
-
-    def __str__(self):
-        if self.indices is None:
-            return self.variable
-        else:
-            indices_str = ",".join(map(str, self.indices))
-            return "{0}({1})".format(self.variable, indices_str)
-
-
 class Negation:
 
     def __init__(self, expression):
@@ -505,3 +488,25 @@ class FileSpec:
 
     def __str__(self):
         return "#{0.handle}={0.name}".format(self)
+
+
+@dataclass
+class Line:
+
+    number: int
+    statement: Statement
+
+    def __repr__(self):
+        return "Line({0.number}, {0.statement!r})".format(self)
+
+    def __str__(self):
+        return "{0.number} {0.statement}".format(self)
+
+
+@dataclass
+class Program:
+
+    lines: List[Line]
+
+    def __repr__(self):
+        return "Program(<{0} lines>)".format(len(self.lines))

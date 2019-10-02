@@ -123,6 +123,6 @@ class Parser:
             grammar_source, {'basic': lang}
         )
 
-    def parse(self, text):
+    def parse(self, text) -> lang.Program:
         parsley_parser = self.grammar(text)
         return parsley_parser.program()
