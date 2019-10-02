@@ -1,5 +1,5 @@
 from . import lang
-import parsley
+import parsley # type: ignore
 
 grammar_source = """
 sp = ' '*
