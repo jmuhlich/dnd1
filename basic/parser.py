@@ -118,11 +118,11 @@ program = line*:lines -> basic.Program(lines)
 
 class Parser:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.grammar = parsley.makeGrammar(
             grammar_source, {'basic': lang}
         )
 
-    def parse(self, text) -> lang.Program:
+    def parse(self, text: str) -> lang.Program:
         parsley_parser = self.grammar(text)
         return parsley_parser.program()

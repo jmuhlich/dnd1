@@ -2,34 +2,35 @@ import sys
 import os
 import random
 import operator
+from typing import Optional, Union, Dict, List, IO
 from . import Parser, lang
 
 
 class Interpreter:
 
-    def __init__(self, source_path, trace=None):
-        self.source_path = source_path
+    def __init__(self, source_path: str, trace: Optional[bool] = None):
+        self.source_path: str = source_path
         if trace is None:
             trace = len(os.getenv('BASIC_TRACE', '')) > 0
-        self.trace = trace
+        self.trace: bool = trace
 
-        self.parser = Parser()
-        self.scalar_symbols = {}
-        self.array_symbols = {}
-        self.line_index = 0
-        self.data_line_index = 0
-        self.data_item_index = 0
-        self.loop_stack = []
-        self.sub_stack = []
-        self.files = {}
+        self.parser: Parser = Parser()
+        self.scalar_symbols: Dict[str, Union[int, float, str]] = {}
+        self.array_symbols: Dict[str, Array]  = {}
+        self.line_index: int = 0
+        self.data_line_index: int = 0
+        self.data_item_index: int = 0
+        self.loop_stack: List[LoopFrame] = []
+        self.sub_stack: List[SubFrame] = []
+        self.files: Dict[int, IO[str]] = {}
 
         self.parse_source()
 
-    def parse_source(self):
+    def parse_source(self) -> None:
         with open(self.source_path) as f:
             self.program = self.parser.parse(f.read())
 
-    def run(self):
+    def run(self) -> None:
         try:
             while self.line_index < len(self.program.lines):
                 self.step()
@@ -37,14 +38,14 @@ class Interpreter:
             pass
         print("\n< Program terminated >")
 
-    def step(self):
+    def step(self) -> None:
         line = self.program.lines[self.line_index]
         self.exec_line(line)
 
-    def current_line_number(self):
+    def current_line_number(self) -> int:
         return self.program.lines[self.line_index].number
 
-    def exec_line(self, line):
+    def exec_line(self, line: lang.Line):
         if self.trace:
             print('>>> {}'.format(line), file=sys.stderr)
         statement = line.statement
@@ -59,7 +60,7 @@ class Interpreter:
         if not flow_changed:
             self.line_index += 1
 
-    def jump_to_line(self, line_number):
+    def jump_to_line(self, line_number: int):
         line_iter = (i for i, l in enumerate(self.program.lines)
                      if l.number == line_number)
         try:
@@ -69,21 +70,21 @@ class Interpreter:
             raise BasicRuntimeError(msg)
         self.line_index = line_index
 
-    def stmt_Base(self, st):
+    def stmt_Base(self, st: lang.Base) -> bool:
         if st.number != 0:
             raise BasicNotImplementedError(
                 'Only "Base 0" is currently implemented')
         return False
 
-    def stmt_Comment(self, st):
+    def stmt_Comment(self, st: lang.Comment) -> bool:
         return False
 
-    def stmt_Data(self, st):
+    def stmt_Data(self, st: lang.Data) -> bool:
         # This has no direct effect, rather we will scan for Data statements
         # upon execution of Read statements.
         return False
 
-    def stmt_Dim(self, st):
+    def stmt_Dim(self, st: lang.Dim) -> bool:
         for ref in st.var_refs:
             name = ref.variable
             dims = [i + 1 for i in ref.indices]
@@ -94,10 +95,10 @@ class Interpreter:
             self.array_symbols[name] = array
         return False
 
-    def stmt_End(self, st):
+    def stmt_End(self, st: lang.End) -> bool:
         raise ProgramStop
 
-    def stmt_File(self, st):
+    def stmt_File(self, st: lang.File) -> bool:
         for fs in st.filespecs:
             if fs.handle in self.files:
                 msg = "File #{0} already opened".format(fs.handle)
@@ -107,12 +108,12 @@ class Interpreter:
             self.files[fs.handle] = f
         return False
 
-    def stmt_For(self, st):
+    def stmt_For(self, st: lang.For) -> bool:
         if (not self.loop_stack or
             self.loop_stack[-1].for_index != self.line_index):
             frame = LoopFrame(st.var_ref, self.eval_expr(st.start),
                               self.eval_expr(st.end), self.line_index,
-                              self.find_next_index())
+                              self.find_next_index(st))
             self.loop_stack.append(frame)
             self.write_reference(frame.var_ref, frame.start)
         else:
@@ -125,8 +126,8 @@ class Interpreter:
         else:
             return False
 
-    def find_next_index(self):
-        for_var = self.program.lines[self.line_index].statement.var_ref.variable
+    def find_next_index(self, st: lang.For) -> int:
+        for_var = st.var_ref.variable
         depth = 0
         for i, line in enumerate(self.program.lines[self.line_index+1:],
                                  self.line_index+1):
@@ -384,6 +385,15 @@ class Array:
     def __setitem__(self, indices, value):
         i1, i2 = indices
         self.data[i1 * self.dim2 + i2] = value
+
+    def __repr__(self):
+        if self.dim2 == 1:
+            return repr(self.data)
+        else:
+            return ',\n'.join([
+                repr(self.data[i * self.dim2 : (i + 1) * self.dim2])
+                for i in range(self.dim1)
+            ])
 
 
 class NumericArray(Array):
